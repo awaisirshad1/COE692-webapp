@@ -31,4 +31,6 @@ public class Client {
 
 
     public Client() {}
+
+    public Client(String username){this.username = username;}
 }

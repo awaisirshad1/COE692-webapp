@@ -2,21 +2,19 @@ package App;
 
 import App.Entity.User;
 import App.Repository.UserRepository;
-import jakarta.servlet.http.HttpServlet;
-import jakarta.servlet.http.HttpServletRequest;
-import jakarta.servlet.http.HttpServletResponse;
-import lombok.extern.java.Log;
 import lombok.extern.slf4j.Slf4j;
+import org.json.JSONObject;
 import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.http.HttpRequest;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
-
-import java.io.IOException;
-import java.util.List;
-import java.util.stream.Collectors;
+import org.springframework.web.reactive.function.BodyInserters;
+import org.springframework.web.reactive.function.client.WebClient;
 
 @SpringBootApplication
 @RestController
@@ -26,6 +24,10 @@ public class AccountsService {
 
 	@Autowired
 	UserRepository userRepository;
+
+	@Value("${endpoints.TrainerServiceBaseUri}")
+	private String trainerServiceBaseUri;
+
 
 	@GetMapping("/login")
 	public ResponseEntity login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
@@ -80,26 +82,28 @@ public class AccountsService {
 		user.setLast_name(lastName);
 		user.setIs_trainer(setIsTrainer);
 
+		MultiValueMap<String, String> trainerServiceResponse = null;
+		MultiValueMap<String, String> requestBody = new LinkedMultiValueMap<String, String>();
+		requestBody.add("username", user.getUsername());
+		WebClient client = WebClient.create();
+		if(user.getIs_trainer()){
+			log.info("user is trainer, send req to trainer service");
+			trainerServiceResponse = insertTrainerEntity(user, client, requestBody);
+		}
+		else{
+			trainerServiceResponse = insertNonTrainerEntity(user, client, requestBody);
+		}
+		log.info("response: "+trainerServiceResponse.toString());
+		// After all other services are called, save to repository
 		userRepository.save(user);
-		log.info("use saved");
+		log.info("user saved to userRepository");
+		//TODO
+		// If trainer, insert to trainer repository, if not, insert to client repository
+
 		response = ResponseEntity.ok().body("Created account");
 		return response;
 	}
 
-	@PostMapping(value = "/tester")
-	public String tester(HttpRequest httpRequest){
-		log.info("received request in tester:");
-		log.info(httpRequest.toString());
-//        try {
-////            log.info(httpServletRequest.getReader().lines().collect(Collectors.joining()));
-//        } catch (IOException e) {
-//            throw new RuntimeException(e);
-//        }
-//		log.info(httpServletRequest.getQueryString().toString());
-//		log.info(htt);
-//		return httpServletRequest.toString() + httpServletResponse.toString();
-		return "response";
-	}
 
 
 	//Regex methods
@@ -118,16 +122,40 @@ public class AccountsService {
 	*  make a POST request to the trainer service
 	*  insert entity into trainer service DB
 	*/
-	private void insertTrainerEntity(User user){
+	private MultiValueMap<String, String> insertTrainerEntity(User user, WebClient client, MultiValueMap<String, String> requestBody){
 		//TODO
+		final String targetUri = trainerServiceBaseUri.concat("/create-trainer");
+		log.info("insertTrainerEntity targetUri: \'"+targetUri+"\'");
+		LinkedMultiValueMap<String,String> responseMap = new LinkedMultiValueMap<>();
+
+		ResponseEntity<String> response = client
+				.post()
+				.uri(targetUri)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromFormData(requestBody))
+				.retrieve()
+				.toEntity(String.class)
+				.block();
+
+		log.info("String response: "+response.getBody());
+		JSONObject responseObject = new JSONObject(response.getBody());
+//		log.info("JSON object for response: "+responseObject);
+//		log.info("JSON object get status: "+responseObject.get("status"));
+		String statusString = (responseObject.getString("status")).toString().contains("success") ? "success": "failure";
+		responseMap.add("status",statusString);
+		return responseMap;
 	}
 
 	/* When the account created is not of type trainer,
 	 *  make a POST request to the trainer service
 	 *  insert entity into trainer service DB
 	 */
-	private void insertNonTrainerEntity(User user){
+	private MultiValueMap<String, String> insertNonTrainerEntity(User user, WebClient client, MultiValueMap<String,String> requestBody){
 		//TODO
+		final String targetUri = trainerServiceBaseUri.concat("/create-client");
+		log.info("insertNonTrainerEntity targetUri: \'"+targetUri+"\'");
+		return null;
 	}
 
 

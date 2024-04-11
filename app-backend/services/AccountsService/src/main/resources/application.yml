@@ -18,3 +18,5 @@ server:
   port: 8081
 
 #spring.jpa.show-sql: true
+endpoints:
+  TrainerServiceBaseUri: http://localhost:8083/trainer
