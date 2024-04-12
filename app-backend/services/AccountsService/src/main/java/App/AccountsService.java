@@ -1,6 +1,7 @@
 package App;
 
 import App.Entity.User;
+import App.Handler.ResponseHandler;
 import App.Repository.UserRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.json.JSONObject;
@@ -8,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
@@ -29,21 +31,26 @@ public class AccountsService {
 	private String trainerServiceBaseUri;
 
 
-	@GetMapping("/login")
-	public ResponseEntity login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
+	@PostMapping("/login")
+	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
 		ResponseEntity response;
 		log.info("get request received");
-		User testOp = userRepository.searchUserByUsername(username);
-		log.info("testOp: "+testOp);
+		User user = userRepository.searchUserByUsername(username);
+		log.info("testOp: "+user);
 		String internal = userRepository.loginCheck(username);
+		String message;
 		if(password.equals(internal)){
 			log.info("success, respond");
-			response = ResponseEntity.ok().body("success");
+			message = "successful login";
+
+			return ResponseHandler.generateResponse(message, HttpStatus.OK, user.getIs_trainer());
+//			response = ResponseEntity.ok().body("success");
 		}else{
 			log.info("failure, respond");
+			message = "invalid login";
 			response = ResponseEntity.badRequest().body("invalid login");
+			return ResponseHandler.generateResponse(message, HttpStatus.UNAUTHORIZED, "");
 		}
-		return response;
 	}
 
 	@PostMapping("/create")

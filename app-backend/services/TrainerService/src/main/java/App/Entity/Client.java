@@ -33,4 +33,9 @@ public class Client {
     public Client() {}
 
     public Client(String username){this.username = username;}
+
+    public boolean equals(Client provided){
+        return this.getUsername().equals(provided.getUsername());
+    }
+
 }
