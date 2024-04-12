@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Map;
+
 @SpringBootApplication
 @RestController
+@CrossOrigin(origins = "http://localhost://3000")
 @RequestMapping("/accounts")
 @Slf4j
 public class AccountsService {
@@ -32,10 +35,13 @@ public class AccountsService {
 
 
 	@PostMapping("/login")
-	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
-		log.info("trainer resource login post request received");
+//	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
+	public  ResponseEntity<Object> login(@RequestBody Map<String,String> payload){
+		log.info("accounts resource login post request received");
+		String username = payload.get("username");
+		String password = payload.get("password");
 		User user = userRepository.searchUserByUsername(username);
-		log.info("user: "+user);
+		log.info("user: "+user.toString());
 		String internal = userRepository.loginCheck(username);
 		String message;
 		if(password.equals(internal)){

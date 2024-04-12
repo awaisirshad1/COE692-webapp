@@ -14,6 +14,7 @@ import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
 @SpringBootApplication
+@CrossOrigin(origins = "http://localhost://3000")
 @RestController
 @RequestMapping("/trainer")
 @Slf4j
@@ -26,7 +27,7 @@ public class TrainerService {
 
 	// INTER SERVICE COMMUNICATION METHOD
 	@PostMapping("/create-trainer")
-	public @ResponseBody ResponseEntity<String> insertTrainer
+	public ResponseEntity<String> insertTrainer
 			(@RequestBody LinkedMultiValueMap<String,String> params)
 	{
 		ResponseEntity<String> response;
@@ -49,7 +50,7 @@ public class TrainerService {
 
 	// INTER SERVICE COMMUNICATION METHOD
 	@PostMapping("/create-client")
-	public @ResponseBody ResponseEntity insertClient
+	public ResponseEntity insertClient
 			(@RequestBody LinkedMultiValueMap<String,String> params)
 	{
 		log.info("trainer service create-client request received");
@@ -68,7 +69,7 @@ public class TrainerService {
 	}
 
 	@PostMapping("/insert-client-summary")
-	public @ResponseBody ResponseEntity updateClientSummary
+	public ResponseEntity updateClientSummary
 			(@RequestParam(name = "username") String username, @RequestParam(name = "trainerUsername") String trainerUsername,
 			 @RequestParam(name = "healthGoal") String healthGoal, @RequestParam(name = "dietaryPreferences") String dietaryPreferences,
 			 @RequestParam(name = "weight") Double weight, @RequestParam(name = "height") Double height, @RequestParam(name = "age") Integer age)
@@ -78,7 +79,7 @@ public class TrainerService {
 	}
 
 	@GetMapping("/get-client-list")
-	public @ResponseBody TrainerClientList getTrainerClientList
+	public  TrainerClientList getTrainerClientList
 			(@RequestBody Trainer trainer)
 	{
 		TrainerClientList trainerClientList = new TrainerClientList(trainer);

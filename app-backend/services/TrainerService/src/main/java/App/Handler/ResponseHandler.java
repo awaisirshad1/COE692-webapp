@@ -13,7 +13,9 @@ public class ResponseHandler {
         map.put("message", message);
         map.put("status", status.value());
         map.put("data", responseObj);
-
-        return new ResponseEntity<Object>(map,status);
+        ResponseEntity<Object> response = new ResponseEntity<Object>(map,status);
+        response.getHeaders().add("Access-Control-Allow-Origin",  "*");
+//        response.getHeaders()
+        return response;
     }
 }
