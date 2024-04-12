@@ -118,7 +118,7 @@ function Login() {
               variant="contained"
               sx={{ py: 2, mt: 3, mb: 2 }}
               endIcon={<SendIcon />}
-              onSubmit={handleLogin}
+              onClick={handleLogin}
             >
               Sign In
             </Button>

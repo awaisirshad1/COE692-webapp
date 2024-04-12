@@ -35,7 +35,7 @@ public class AccountsService {
 	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
 		log.info("trainer resource login post request received");
 		User user = userRepository.searchUserByUsername(username);
-		log.info("testOp: "+user);
+		log.info("user: "+user);
 		String internal = userRepository.loginCheck(username);
 		String message;
 		if(password.equals(internal)){
@@ -101,11 +101,7 @@ public class AccountsService {
 		// After all other services are called, save to repository
 		userRepository.save(user);
 		log.info("user saved to userRepository");
-		//TODO
-		// If trainer, insert to trainer repository, if not, insert to client repository
-
-		response = ResponseEntity.ok().body("Created account");
-		return response;
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, "created account");
 	}
 
 
@@ -144,8 +140,8 @@ public class AccountsService {
 
 		log.info("String response: "+response.getBody());
 		JSONObject responseObject = new JSONObject(response.getBody());
-//		log.info("JSON object for response: "+responseObject);
-//		log.info("JSON object get status: "+responseObject.get("status"));
+		log.info("JSON object for response: "+responseObject);
+		log.info("JSON object get status: "+responseObject.get("status"));
 		String statusString = (responseObject.getString("status")).toString().contains("success") ? "success": "failure";
 		responseMap.add("status",statusString);
 		return responseMap;

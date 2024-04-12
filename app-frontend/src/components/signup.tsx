@@ -225,7 +225,7 @@ function Signup(){
               variant="contained"
               sx={{ py: 2, mt: 3, mb: 2 }}
               endIcon={<SendIcon />}
-              onSubmit={handleSignup}
+              onClick={handleSignup}
               
             >
               Sign Up
