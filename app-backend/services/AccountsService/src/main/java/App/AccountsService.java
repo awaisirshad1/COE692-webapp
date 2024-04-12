@@ -22,7 +22,7 @@ import java.util.Map;
 
 @SpringBootApplication
 @RestController
-@CrossOrigin(origins = "http://localhost://3000")
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/accounts")
 @Slf4j
 public class AccountsService {
@@ -34,7 +34,10 @@ public class AccountsService {
 	private String trainerServiceBaseUri;
 
 
-	@PostMapping("/login")
+	@PostMapping(
+			path = "/login",
+			consumes = MediaType.APPLICATION_JSON_VALUE
+	)
 //	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
 	public  ResponseEntity<Object> login(@RequestBody Map<String,String> payload){
 		log.info("accounts resource login post request received");

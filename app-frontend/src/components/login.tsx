@@ -26,7 +26,7 @@ function Login() {
   const handleLogin = async(event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault() ;
     const targetUrl = 'http://localhost:8081/accounts/login';
-    const data: LoginFormState = { username, password };
+    const loginFormData: LoginFormState = { username, password };
 
     try {
       // const response = await fetch(url, {
@@ -39,15 +39,18 @@ function Login() {
       const response = axios({
         method:'post',
         url: targetUrl,
-        headers:{},
-        data:JSON.stringify(data)
+        headers:{
+          "Access-Control-Allow-Origin":'*',
+          "Content-Type":'application/json'
+        },
+        data: JSON.stringify(loginFormData)
 
     });
 
       if ((await response).status == HttpStatusCode.Ok) {
         const result = (await response).data;
         console.log('Login Successful:', result);
-        if(result.isTrainer==true){
+        if(result.body ==true){
           navigate('/TrainerView');
         }
         else{

@@ -15,14 +15,12 @@ public class ResponseHandler {
         Map<String, Object> map = new HashMap<String, Object>();
         map.put("message", message);
         map.put("status", status.value());
-        map.put("data", responseObj);
+        map.put("body", responseObj);
 
         ResponseEntity<Object> response = new ResponseEntity<Object>(map,status);
         log.info(response.getHeaders().toString());
-        HttpHeaders headers = new HttpHeaders();
-        headers.addAll(response.getHeaders());
-        headers.add("Access-Control-Allow-Origin",  "*");
-//        response.headers()
+        response = ResponseEntity.status(status).headers(response.getHeaders()).body(map);
+        log.info(response.toString());
         return response;
     }
 }
