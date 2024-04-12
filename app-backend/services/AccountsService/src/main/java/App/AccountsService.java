@@ -59,22 +59,20 @@ public class AccountsService {
 	{
 		log.info("trainer resource signup post request received");
 		ResponseEntity response;
+		String responseMsg;
 		// Regex checks
-		boolean validUsernameRegex = validateUsername(username);
-		boolean validPasswordRegex = validatePassword(password);
-		if(!(validPasswordRegex || validUsernameRegex)){
+		if(!(validateUsername(username) || validatePassword(password))){
 			log.info("regex checks failed");
-			response = ResponseEntity.ok().body("invalid username or password");
-			return response;
+			responseMsg = "Invalid username or password characters";
+			return ResponseHandler.generateResponse(responseMsg, HttpStatus.CONFLICT, "");
 		}
-
 		// Duplicate username checks
 		Long resultLong = userRepository.usernameExists(username);
 		log.info("resultLong: "+resultLong);
 		if(resultLong==1){
 			log.info("account exists");
-			response = ResponseEntity.ok().body("username already in use");
-			return response;
+			responseMsg="username already exists";
+			ResponseHandler.generateResponse(responseMsg, HttpStatus.CONFLICT, "");
 		}
 
 		Boolean setIsTrainer = Boolean.valueOf(isTrainer);
