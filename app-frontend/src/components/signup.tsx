@@ -35,19 +35,57 @@ const marks = [
 
 function Signup(){
     const navigate = useNavigate();
-    const[isChecked,setIsChecked]=useState(false) ;
+    const[username,setUsername]=useState<string>('');
+      const[password,setPassword]=useState<string>('');
+      const[firstName,setFirstName]=useState<string>('');
+      const[lastName,setLastname]=useState<string>('');
+      const[isTrainer,setisTrainer]=useState(false);
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-        setIsChecked(event.target.checked);
+    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
+      setisTrainer(checked); // Directly use the `checked` boolean provided by MUI
+    };
+
+
+      type SignupFormState = {
+        username: string;
+        password: string;
+        firstName : string ;
+        lastName:String ;
+        isTrainer: boolean ;
       };
 
-      const handleSignUpButtonClick = () => {
-        if (isChecked) {
-          navigate('/trainerView');
-        } else {
-          navigate('/clientView')
+    
+    
+      const handleSignup = async(event: React.MouseEvent<HTMLButtonElement>) => {
+        event.preventDefault() ;
+        const url = 'http://localhost:8081/accounts/signup';
+        const data: SignupFormState = { username, password,firstName,lastName,isTrainer };
+    
+        try {
+          const response = await fetch(url, {
+            method: 'POST',
+            headers: {
+              'Content-Type': 'application/json',
+            },
+            body: JSON.stringify(data),
+          });
+    
+          if (response.ok) {
+            const result = await response.json();
+            console.log('Login Successful:', result);
+            if(result.isTrainer==true){
+              navigate('/TrainerView');
+            }
+            else{
+              navigate('/ClientView');
+            }
+          } else {
+            throw new Error('Failed to login');
+          }
+        } catch (error) {
+          console.error('Login Error:', error);
         }
-      };
+      }
 
     return(
         <Grid container component="main" sx={{ height: '100vh', overflow: 'hidden' }}>
@@ -80,19 +118,46 @@ function Signup(){
             Sign up
           </Typography>
           <Box component="form" noValidate sx={{ mt: 1 }}>
-          <TextField
+          <Box
+            sx={{
+            display: 'flex',
+            alignItems: 'center',
+            '& > :not(style)': { m: 1 },
+            }}>
+                  <TextField
               margin="normal"
               required
               fullWidth
-              id="Name"
-              label="Name"
-              name="Name"
-              autoComplete="Name"
+              id="First Name"
+              label="First Name"
+              name="First Name"
+              autoComplete="First Name"
               autoFocus
               variant="outlined"
+              value={firstName}
+              onChange={e => setFirstName(e.target.value)} 
+
             />
+
+            <TextField
+              margin="normal"
+              required
+              fullWidth
+              id="Last Name"
+              label="Last Name"
+              name="Last Name"
+              autoComplete="Last Name"
+              autoFocus
+              variant="outlined"
+              value={lastName}
+              onChange={e => setLastname(e.target.value)} 
+
+            />
+          </Box>
+
+          
             <FormControlLabel control={
-            <Checkbox defaultChecked checked={isChecked} onChange={handleCheckboxChange}/>} 
+            <Checkbox defaultChecked  checked={isTrainer} onChange={handleCheckboxChange}/>} 
             label="Trainer" />
             <Box
                 sx={{
@@ -138,6 +203,8 @@ function Signup(){
               autoComplete="username"
               autoFocus
               variant="outlined"
+              value={username} 
+              onChange={e => setUsername(e.target.value)}
             />
             <TextField
               margin="normal"
@@ -149,6 +216,8 @@ function Signup(){
               id="password"
               autoComplete="current-password"
               variant="outlined"
+              value={password} 
+              onChange={e => setPassword(e.target.value)}
             />
             <Button
               type="submit"
@@ -156,7 +225,7 @@ function Signup(){
               variant="contained"
               sx={{ py: 2, mt: 3, mb: 2 }}
               endIcon={<SendIcon />}
-              onClick={handleSignUpButtonClick}
+              onSubmit={handleSignup}
               
             >
               Sign Up

@@ -1,14 +1,57 @@
-import React from "react";
+import React,{ useState } from "react";
 import { Grid, Paper, TextField, Typography, Link as MuiLink, Button, Stack, useTheme, useMediaQuery } from "@mui/material";
 import DeleteIcon from '@mui/icons-material/Delete';
 import SendIcon from '@mui/icons-material/Send';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
+import { useNavigate } from 'react-router-dom';
+
+
+type LoginFormState = {
+  username: string;
+  password: string;
+};
 
 function Login() {
   const theme = useTheme();
+  const navigate = useNavigate();  
   const matches = useMediaQuery(theme.breakpoints.up('md'));
+
+  const[username,setUsername]=useState<string>('');
+  const[password,setPassword]=useState<string>('');
+
+
+  const handleLogin = async(event: React.MouseEvent<HTMLButtonElement>) => {
+    event.preventDefault() ;
+    const url = 'http://localhost:8081/accounts/login';
+    const data: LoginFormState = { username, password };
+
+    try {
+      const response = await fetch(url, {
+        method: 'POST',
+        headers: {
+          'Content-Type': 'application/json',
+        },
+        body: JSON.stringify(data),
+      });
+
+      if (response.ok) {
+        const result = await response.json();
+        console.log('Login Successful:', result);
+        if(result.isTrainer==true){
+          navigate('/TrainerView');
+        }
+        else{
+          navigate('/ClientView');
+        }
+      } else {
+        throw new Error('Failed to login');
+      }
+    } catch (error) {
+      console.error('Login Error:', error);
+    }
+  }
 
   return (
     <Grid container component="main" sx={{ height: '100vh', overflow: 'hidden' }}>
@@ -53,6 +96,8 @@ function Login() {
               autoComplete="username"
               autoFocus
               variant="outlined"
+              value={username} 
+              onChange={e => setUsername(e.target.value)} 
             />
             <TextField
               margin="normal"
@@ -64,6 +109,8 @@ function Login() {
               id="password"
               autoComplete="current-password"
               variant="outlined"
+              value={password} 
+              onChange={e => setPassword(e.target.value)}
             />
             <Button
               type="submit"
@@ -71,6 +118,7 @@ function Login() {
               variant="contained"
               sx={{ py: 2, mt: 3, mb: 2 }}
               endIcon={<SendIcon />}
+              onSubmit={handleLogin}
             >
               Sign In
             </Button>
