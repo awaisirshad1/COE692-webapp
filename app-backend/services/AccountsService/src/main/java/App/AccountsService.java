@@ -33,8 +33,7 @@ public class AccountsService {
 
 	@PostMapping("/login")
 	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
-		ResponseEntity response;
-		log.info("get request received");
+		log.info("trainer resource login post request received");
 		User user = userRepository.searchUserByUsername(username);
 		log.info("testOp: "+user);
 		String internal = userRepository.loginCheck(username);
@@ -44,21 +43,21 @@ public class AccountsService {
 			message = "successful login";
 
 			return ResponseHandler.generateResponse(message, HttpStatus.OK, user.getIs_trainer());
-//			response = ResponseEntity.ok().body("success");
-		}else{
+		}
+		else{
 			log.info("failure, respond");
 			message = "invalid login";
-			response = ResponseEntity.badRequest().body("invalid login");
 			return ResponseHandler.generateResponse(message, HttpStatus.UNAUTHORIZED, "");
 		}
 	}
 
-	@PostMapping("/create")
-	public @ResponseBody ResponseEntity createUser
+	@PostMapping("/signup")
+	public @ResponseBody ResponseEntity signup
 			(@RequestParam(name="username") String username,@RequestParam(name="password") String password,
 		  	 @RequestParam(name="firstName") String firstName, @RequestParam(name="lastName") String lastName,
 		     @RequestParam(name="isTrainer") Boolean isTrainer)
 	{
+		log.info("trainer resource signup post request received");
 		ResponseEntity response;
 		// Regex checks
 		boolean validUsernameRegex = validateUsername(username);
