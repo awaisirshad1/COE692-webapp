@@ -18,8 +18,11 @@ import org.springframework.web.bind.annotation.*;
 import org.springframework.web.reactive.function.BodyInserters;
 import org.springframework.web.reactive.function.client.WebClient;
 
+import java.util.Map;
+
 @SpringBootApplication
 @RestController
+@CrossOrigin(origins = "http://localhost:3000")
 @RequestMapping("/accounts")
 @Slf4j
 public class AccountsService {
@@ -31,11 +34,17 @@ public class AccountsService {
 	private String trainerServiceBaseUri;
 
 
-	@PostMapping("/login")
-	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
-		log.info("trainer resource login post request received");
+	@PostMapping(
+			path = "/login",
+			consumes = MediaType.APPLICATION_JSON_VALUE
+	)
+	public  ResponseEntity<Object> login
+			(@RequestBody Map<String,String> payload){
+		log.info("accounts resource login post request received");
+		String username = payload.get("username");
+		String password = payload.get("password");
 		User user = userRepository.searchUserByUsername(username);
-		log.info("testOp: "+user);
+		log.info("user: "+user.toString());
 		String internal = userRepository.loginCheck(username);
 		String message;
 		if(password.equals(internal)){
@@ -52,29 +61,30 @@ public class AccountsService {
 	}
 
 	@PostMapping("/signup")
-	public @ResponseBody ResponseEntity signup
-			(@RequestParam(name="username") String username,@RequestParam(name="password") String password,
-		  	 @RequestParam(name="firstName") String firstName, @RequestParam(name="lastName") String lastName,
-		     @RequestParam(name="isTrainer") Boolean isTrainer)
+	public ResponseEntity<Object> signup
+			(@RequestBody Map<String, String> payload)
 	{
+		String username = payload.get("username");
+		String password = payload.get("password");
+		String firstName = payload.get("firstName");
+		String lastName = payload.get("lastName");
+		Boolean isTrainer = payload.get("isTrainer").equals("true");
 		log.info("trainer resource signup post request received");
 		ResponseEntity response;
+		String responseMsg;
 		// Regex checks
-		boolean validUsernameRegex = validateUsername(username);
-		boolean validPasswordRegex = validatePassword(password);
-		if(!(validPasswordRegex || validUsernameRegex)){
+		if(!(validateUsername(username) || validatePassword(password))){
 			log.info("regex checks failed");
-			response = ResponseEntity.ok().body("invalid username or password");
-			return response;
+			responseMsg = "Invalid username or password characters";
+			return ResponseHandler.generateResponse(responseMsg, HttpStatus.CONFLICT, "");
 		}
-
 		// Duplicate username checks
 		Long resultLong = userRepository.usernameExists(username);
 		log.info("resultLong: "+resultLong);
 		if(resultLong==1){
 			log.info("account exists");
-			response = ResponseEntity.ok().body("username already in use");
-			return response;
+			responseMsg="username already exists";
+			ResponseHandler.generateResponse(responseMsg, HttpStatus.CONFLICT, "");
 		}
 
 		Boolean setIsTrainer = Boolean.valueOf(isTrainer);
@@ -93,21 +103,18 @@ public class AccountsService {
 		requestBody.add("username", user.getUsername());
 		WebClient client = WebClient.create();
 		if(user.getIs_trainer()){
-			log.info("user is trainer, send req to trainer service");
+			log.info("user is trainer, send req to trainer service: trainer api");
 			trainerServiceResponse = insertTrainerEntity(user, client, requestBody);
 		}
 		else{
-			trainerServiceResponse = insertNonTrainerEntity(user, client, requestBody);
+			log.info("user is not trainer, send erq to trainer service: client api");
+			trainerServiceResponse = insertNonTrainerEntity(user, client, requestBody, payload);
 		}
 		log.info("response: "+trainerServiceResponse.toString());
 		// After all other services are called, save to repository
 		userRepository.save(user);
 		log.info("user saved to userRepository");
-		//TODO
-		// If trainer, insert to trainer repository, if not, insert to client repository
-
-		response = ResponseEntity.ok().body("Created account");
-		return response;
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, "created account");
 	}
 
 
@@ -129,7 +136,7 @@ public class AccountsService {
 	*  insert entity into trainer service DB
 	*/
 	private MultiValueMap<String, String> insertTrainerEntity(User user, WebClient client, MultiValueMap<String, String> requestBody){
-		//TODO
+		log.info("interservice communcation: insertTrainerEntity request caller:");
 		final String targetUri = trainerServiceBaseUri.concat("/create-trainer");
 		log.info("insertTrainerEntity targetUri: \'"+targetUri+"\'");
 		LinkedMultiValueMap<String,String> responseMap = new LinkedMultiValueMap<>();
@@ -146,8 +153,8 @@ public class AccountsService {
 
 		log.info("String response: "+response.getBody());
 		JSONObject responseObject = new JSONObject(response.getBody());
-//		log.info("JSON object for response: "+responseObject);
-//		log.info("JSON object get status: "+responseObject.get("status"));
+		log.info("JSON object for response: "+responseObject);
+		log.info("JSON object get status: "+responseObject.get("status"));
 		String statusString = (responseObject.getString("status")).toString().contains("success") ? "success": "failure";
 		responseMap.add("status",statusString);
 		return responseMap;
@@ -157,11 +164,29 @@ public class AccountsService {
 	 *  make a POST request to the trainer service
 	 *  insert entity into trainer service DB
 	 */
-	private MultiValueMap<String, String> insertNonTrainerEntity(User user, WebClient client, MultiValueMap<String,String> requestBody){
+	private MultiValueMap<String, String> insertNonTrainerEntity(User user, WebClient client, MultiValueMap<String,String> requestBody, Map<String,String> payload){
 		//TODO
 		final String targetUri = trainerServiceBaseUri.concat("/create-client");
 		log.info("insertNonTrainerEntity targetUri: \'"+targetUri+"\'");
-		return null;
+
+
+		LinkedMultiValueMap<String,String> responseMap = new LinkedMultiValueMap<>();
+		ResponseEntity<Object> response = client
+				.post()
+				.uri(targetUri)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromFormData(requestBody))
+				.retrieve()
+				.toEntity(Object.class)
+				.block();
+		log.info("String response: "+response.getBody());
+		JSONObject responseObject = new JSONObject(response.getBody());
+		log.info("JSON object for response: "+responseObject);
+		log.info("JSON object get status: "+responseObject.get("status"));
+		String statusString = (responseObject.getString("status")).toString().contains("success") ? "success": "failure";
+		responseMap.add("status",statusString);
+		return responseMap;
 	}
 
 

@@ -28,6 +28,9 @@ target/
 build/
 !**/src/main/**/build/
 !**/src/test/**/build/
-
+services/TrainerService/.DS_Store
+services/AccountsService/.DS_Store
+services/.DS_Store
+.DS_Store
 ### VS Code ###
 .vscode/

@@ -6,6 +6,7 @@ import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Avatar from '@mui/material/Avatar';
 import Box from '@mui/material/Box';
 import { useNavigate } from 'react-router-dom';
+import axios, { HttpStatusCode } from "axios";
 
 
 type LoginFormState = {
@@ -24,23 +25,31 @@ function Login() {
 
   const handleLogin = async(event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault() ;
-    const url = 'http://localhost:8081/accounts/login';
-    const data: LoginFormState = { username, password };
+    const targetUrl = 'http://localhost:8081/accounts/login';
+    const loginFormData: LoginFormState = { username, password };
 
     try {
-      const response = await fetch(url, {
-        method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
+      const response = axios({
+        method:'post',
+        url: targetUrl,
+        headers:{
+          "Access-Control-Allow-Origin":'*',
+          "Content-Type":'application/json'
         },
+<<<<<<< HEAD
         body: JSON.stringify(data),
         
       });
+=======
+        data: JSON.stringify(loginFormData)
+>>>>>>> 694bbe35e21bbf247d76735b83893cd70613e249
 
-      if (response.ok) {
-        const result = await response.json();
+    });
+
+      if ((await response).status == HttpStatusCode.Ok) {
+        const result = (await response).data;
         console.log('Login Successful:', result);
-        if(result.isTrainer==true){
+        if(result.body ==true){
           navigate('/TrainerView');
         }
         else{
