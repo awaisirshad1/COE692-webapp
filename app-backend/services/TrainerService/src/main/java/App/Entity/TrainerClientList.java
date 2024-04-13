@@ -19,7 +19,7 @@ import java.util.Map;
 public class TrainerClientList {
     @Getter @Setter
     Trainer trainer;
-    @Getter @Setter
+    @Getter
     Map<String,Client> clientList;
 
     public TrainerClientList(Trainer trainer){
