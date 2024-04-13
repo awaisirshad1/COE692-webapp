@@ -6,13 +6,16 @@ spring:
       base-path: /api
   jpa:
     hibernate:
-      ddl-auto: none
+      ddl-auto: update
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
   datasource:
 # CONFIGURE THE BELOW FOR YOUR RESPECTIVE MYSQL DB < ----------
-    url: jdbc:mysql://localhost:3306/coe692data_trainers
+    url: jdbc:mysql://mysql:3306/coe692data_trainers
     username: awaislocal
     password: awaislocal
-    driver-class-name: com.mysql.jdbc.Driver
+    driver-class-name: com.mysql.cj.jdbc.Driver
 #  ------------------ >
 server:
   port: 8083

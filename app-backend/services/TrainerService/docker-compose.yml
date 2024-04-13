@@ -1,10 +1,10 @@
 services:
   mysql:
-    container_name: accounts-service-db-container
+    container_name: trainer-service-db-container
     image: "mysql:8.0"
     restart: always
     environment:
-      MYSQL_DATABASE: coe692data_accounts
+      MYSQL_DATABASE: coe692data_trainer
       MYSQL_USER: awaislocal
       MYSQL_PASSWORD: awaislocal
       MYSQL_ROOT_PASSWORD: awaislocal
@@ -13,23 +13,23 @@ services:
     volumes:
       - ./docker/data/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
-      - accounts-services-network
+      - trainer-services-network
 
-  accounts-service:
-    container_name: accounts-service-api-container
+  trainer-service:
+    container_name: trainer-service-api-container
     build:
       dockerfile: Dockerfile
     restart: always
     ports:
-      - "8081:8081"
+      - "8083:8083"
     networks:
-      - accounts-services-network
+      - trainer-services-network
     environment:
-      - spring.datasource.url=jdbc:mysql://mysql:3306/coe692data_accounts
+      - spring.datasource.url=jdbc:mysql://mysql:3306/coe692data_trainer
     depends_on:
       - mysql
     volumes:
       - .m2:/root/.m2
 
 networks:
-  accounts-services-network:
+  trainer-services-network:

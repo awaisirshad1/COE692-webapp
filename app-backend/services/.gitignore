@@ -34,3 +34,5 @@ services/.DS_Store
 .DS_Store
 ### VS Code ###
 .vscode/
+/LoginService/
+/Frontend/
