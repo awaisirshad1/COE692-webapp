@@ -15,8 +15,10 @@ import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
+import org.springframework.util.MultiValueMap;
 import org.springframework.web.bind.annotation.*;
 
+import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication
@@ -56,7 +58,7 @@ public class TrainerService {
 
 	// INTER SERVICE COMMUNICATION METHOD
 	@PostMapping("/create-client")
-	public ResponseEntity insertClient
+	public ResponseEntity<Object> insertClient
 			(@RequestBody LinkedMultiValueMap<String,String> params)
 	{
 		log.info("trainer service create-client request received");
@@ -65,13 +67,15 @@ public class TrainerService {
 		Long clientExists = clientRecords.clientExists(params.getFirst(jsonParam));
 		if(clientExists==1){
 			log.info("client already exists, returning failure status...");
-			return ResponseEntity.badRequest().body("failure");
+			return ResponseHandler.generateResponse("failure", HttpStatus.CONFLICT, "user already exists");
 		}
 		else{
 			log.info("client does not exist, inserting...");
-
+			Client client = new Client(params.getFirst("username"));
+			clientRecords.save(client);
+			updateClientSummaryNotRest(params);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, "created client: \'"+client.getUsername()+"\'");
 		}
-		return ResponseEntity.ok().body("ok");
 	}
 
 	@PostMapping("/insert-client-summary")
@@ -137,6 +141,59 @@ public class TrainerService {
 		log.info("client list:"+trainerClientList.getClientList());
 		return ResponseHandler.generateResponse("success", HttpStatus.OK, trainerClientList.getClientList());
 	}
+
+	@GetMapping("/get-all-clients")
+	public ResponseEntity<Object> getClients(){
+		log.info("trainer service get all clients request received");
+
+		List<Client> clientList = clientRecords.getAllClients();
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, clientList);
+	}
+
+	@PostMapping("/insert-client-into-trainer-list")
+	public ResponseEntity<Object> insertClientIntoTrainerList
+			(@RequestParam(value = "trainerUsername") String trainerUsername, @RequestBody Map<String,String> payload)
+	{
+		log.info("trainer service insert client into trainer clientlist post request received");
+		String clientUsername = payload.get("username");
+		try{
+			Client client = clientRecords.getClientByUsername(clientUsername);
+			client.setTrainer_username(trainerUsername);
+			clientRecords.save(client);
+			return ResponseHandler.generateResponse("success", HttpStatus.OK, "inserted "+trainerUsername+" as trainer for "+client.getUsername());
+		}
+		catch (Exception e){
+			log.error(String.valueOf(e));
+			return ResponseHandler.generateResponse("failure", HttpStatus.INTERNAL_SERVER_ERROR, e);
+		}
+	}
+
+
+
+	public void updateClientSummaryNotRest(LinkedMultiValueMap<String,String> params){
+
+		String username = params.getFirst("username");
+		String trainerUsername = params.getFirst("trainerUsername");
+		String healthGoal = params.getFirst("healthGoal");
+		String dietaryPreferences = params.getFirst("dietaryPreferences");
+		Double weight = Double.valueOf(params.getFirst("weight"));
+		Double height = Double.valueOf(params.getFirst("height"));
+		Integer age = Integer.valueOf(params.getFirst("age"));
+
+		Client client = clientRecords.getClientByUsername(username);
+
+		if(trainerUsername!=null){
+			client.setTrainer_username(trainerUsername);
+		}
+		client.setHealth_goal(healthGoal);
+		client.setDietaryPreferences(dietaryPreferences);
+		client.setWeight(weight);
+		client.setHeight(height);
+		client.setAge(age);
+		clientRecords.save(client);
+
+	}
+
 
 	public static void main(String[] args) {
 		SpringApplication.run(TrainerService.class, args);

@@ -103,11 +103,12 @@ public class AccountsService {
 		requestBody.add("username", user.getUsername());
 		WebClient client = WebClient.create();
 		if(user.getIs_trainer()){
-			log.info("user is trainer, send req to trainer service");
+			log.info("user is trainer, send req to trainer service: trainer api");
 			trainerServiceResponse = insertTrainerEntity(user, client, requestBody);
 		}
 		else{
-			trainerServiceResponse = insertNonTrainerEntity(user, client, requestBody);
+			log.info("user is not trainer, send erq to trainer service: client api");
+			trainerServiceResponse = insertNonTrainerEntity(user, client, requestBody, payload);
 		}
 		log.info("response: "+trainerServiceResponse.toString());
 		// After all other services are called, save to repository
@@ -135,7 +136,7 @@ public class AccountsService {
 	*  insert entity into trainer service DB
 	*/
 	private MultiValueMap<String, String> insertTrainerEntity(User user, WebClient client, MultiValueMap<String, String> requestBody){
-		//TODO
+		log.info("interservice communcation: insertTrainerEntity request caller:");
 		final String targetUri = trainerServiceBaseUri.concat("/create-trainer");
 		log.info("insertTrainerEntity targetUri: \'"+targetUri+"\'");
 		LinkedMultiValueMap<String,String> responseMap = new LinkedMultiValueMap<>();
@@ -163,11 +164,29 @@ public class AccountsService {
 	 *  make a POST request to the trainer service
 	 *  insert entity into trainer service DB
 	 */
-	private MultiValueMap<String, String> insertNonTrainerEntity(User user, WebClient client, MultiValueMap<String,String> requestBody){
+	private MultiValueMap<String, String> insertNonTrainerEntity(User user, WebClient client, MultiValueMap<String,String> requestBody, Map<String,String> payload){
 		//TODO
 		final String targetUri = trainerServiceBaseUri.concat("/create-client");
 		log.info("insertNonTrainerEntity targetUri: \'"+targetUri+"\'");
-		return null;
+
+
+		LinkedMultiValueMap<String,String> responseMap = new LinkedMultiValueMap<>();
+		ResponseEntity<Object> response = client
+				.post()
+				.uri(targetUri)
+				.contentType(MediaType.APPLICATION_JSON)
+				.accept(MediaType.APPLICATION_JSON)
+				.body(BodyInserters.fromFormData(requestBody))
+				.retrieve()
+				.toEntity(Object.class)
+				.block();
+		log.info("String response: "+response.getBody());
+		JSONObject responseObject = new JSONObject(response.getBody());
+		log.info("JSON object for response: "+responseObject);
+		log.info("JSON object get status: "+responseObject.get("status"));
+		String statusString = (responseObject.getString("status")).toString().contains("success") ? "success": "failure";
+		responseMap.add("status",statusString);
+		return responseMap;
 	}
 
 

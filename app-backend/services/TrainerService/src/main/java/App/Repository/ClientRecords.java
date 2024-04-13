@@ -16,4 +16,7 @@ public interface ClientRecords extends CrudRepository<Client, String> {
 
     @Query(value ="select * from client_records where trainer_username = :#{#trainer_username}" ,nativeQuery = true)
     public List<Client> getClientsByTrainer_username(String trainer_username);
+
+    @Query(value ="select * from client_records" ,nativeQuery = true)
+    public List<Client> getAllClients();
 }
