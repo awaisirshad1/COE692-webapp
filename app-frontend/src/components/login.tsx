@@ -29,13 +29,6 @@ function Login() {
     const loginFormData: LoginFormState = { username, password };
 
     try {
-      // const response = await fetch(url, {
-      //   method: 'POST',
-      //   headers: {
-      //     'Content-Type': 'application/json',
-      //   },
-      //   body: JSON.stringify(data),
-      // });
       const response = axios({
         method:'post',
         url: targetUrl,
