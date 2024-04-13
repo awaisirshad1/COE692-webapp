@@ -1,17 +1,22 @@
 package App;
 
+import App.Entity.Client;
 import App.Entity.Trainer;
 import App.Entity.TrainerClientList;
+import App.Handler.ResponseHandler;
 import App.Repository.ClientRecords;
 import App.Repository.TrainerRepository;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.util.LinkedMultiValueMap;
 import org.springframework.web.bind.annotation.*;
+
+import java.util.Map;
 
 @SpringBootApplication
 @CrossOrigin(origins = "http://localhost://3000")
@@ -69,23 +74,67 @@ public class TrainerService {
 	}
 
 	@PostMapping("/insert-client-summary")
-	public ResponseEntity updateClientSummary
-			(@RequestParam(name = "username") String username, @RequestParam(name = "trainerUsername") String trainerUsername,
-			 @RequestParam(name = "healthGoal") String healthGoal, @RequestParam(name = "dietaryPreferences") String dietaryPreferences,
-			 @RequestParam(name = "weight") Double weight, @RequestParam(name = "height") Double height, @RequestParam(name = "age") Integer age)
+	public ResponseEntity<Object> updateClientSummary
+//			(@RequestParam(name = "username") String username, @RequestParam(name = "trainerUsername") String trainerUsername,
+//			 @RequestParam(name = "healthGoal") String healthGoal, @RequestParam(name = "dietaryPreferences") String dietaryPreferences,
+//			 @RequestParam(name = "weight") Double weight, @RequestParam(name = "height") Double height, @RequestParam(name = "age") Integer age)
+		(@RequestBody Map<String,String> payload)
 	{
+		log.info("Trainer service insert-client-summary post request received with payload: "+payload.toString());
+		String responseMsg;
 
-		return ResponseEntity.ok().body("ok");
+		String username = payload.get("username");
+		String trainerUsername;
+		String healthGoal = payload.get("healthGoal");
+		String dietaryPreferences = payload.get("dietaryPreferences");
+		Double weight = Double.valueOf(payload.get("weight"));
+		Double height = Double.valueOf(payload.get("height"));
+		Integer age = Integer.valueOf(payload.get("age"));
+
+		Client client = clientRecords.getClientByUsername("username");
+		if(client == null){
+			responseMsg = "client not found";
+			return ResponseHandler.generateResponse(responseMsg, HttpStatus.NOT_FOUND, "username:"+username);
+		}
+		else{
+			//check for trainer username in this request
+			try{
+				trainerUsername = payload.get("trainerUsername");
+				client.setTrainer_username(trainerUsername);
+			}
+			catch (Exception e){
+				log.info("no trainer username provided");
+				trainerUsername = null;
+			}
+
+			client.setHealth_goal(healthGoal);
+			client.setDietaryPreferences(dietaryPreferences);
+			client.setWeight(weight);
+			client.setHeight(height);
+			client.setAge(age);
+
+			clientRecords.save(client);
+			responseMsg = "saved client" + client.getUsername();
+			return ResponseHandler.generateResponse(responseMsg, HttpStatus.OK, client);
+		}
 	}
 
 	@GetMapping("/get-client-list")
-	public  TrainerClientList getTrainerClientList
-			(@RequestBody Trainer trainer)
+	public ResponseEntity<Object> getTrainerClientList
+			(@RequestBody Map<String, String> payload)
 	{
-		TrainerClientList trainerClientList = new TrainerClientList(trainer);
 		log.info("trainer service getClientList request received");
+		String responseMsg;
+
+		Trainer trainer = trainerRepository.getTrainerByUsername(payload.get("trainerUsername"));
+		if(trainer==null){
+			responseMsg = "trainer not found";
+			return ResponseHandler.generateResponse(responseMsg, HttpStatus.BAD_REQUEST, "");
+		}
+		TrainerClientList trainerClientList = new TrainerClientList(trainer);
 		trainerClientList.setClientList(clientRecords.getClientsByTrainer_username(trainer.getUsername()));
-		return trainerClientList;
+		log.info("client list:"+trainerClientList.getClientList());
+		return ResponseHandler.generateResponse("success", HttpStatus.OK, trainerClientList.getClientList());
 	}
 
 	public static void main(String[] args) {

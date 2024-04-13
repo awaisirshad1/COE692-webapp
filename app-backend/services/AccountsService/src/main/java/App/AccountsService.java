@@ -38,8 +38,8 @@ public class AccountsService {
 			path = "/login",
 			consumes = MediaType.APPLICATION_JSON_VALUE
 	)
-//	public  ResponseEntity<Object> login(@RequestParam(name="username") String username, @RequestParam(name="password") String password){
-	public  ResponseEntity<Object> login(@RequestBody Map<String,String> payload){
+	public  ResponseEntity<Object> login
+			(@RequestBody Map<String,String> payload){
 		log.info("accounts resource login post request received");
 		String username = payload.get("username");
 		String password = payload.get("password");
@@ -61,11 +61,14 @@ public class AccountsService {
 	}
 
 	@PostMapping("/signup")
-	public @ResponseBody ResponseEntity signup
-			(@RequestParam(name="username") String username,@RequestParam(name="password") String password,
-		  	 @RequestParam(name="firstName") String firstName, @RequestParam(name="lastName") String lastName,
-		     @RequestParam(name="isTrainer") Boolean isTrainer)
+	public ResponseEntity<Object> signup
+			(@RequestBody Map<String, String> payload)
 	{
+		String username = payload.get("username");
+		String password = payload.get("password");
+		String firstName = payload.get("firstName");
+		String lastName = payload.get("lastName");
+		Boolean isTrainer = payload.get("isTrainer").equals("true");
 		log.info("trainer resource signup post request received");
 		ResponseEntity response;
 		String responseMsg;

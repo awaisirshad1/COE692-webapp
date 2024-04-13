@@ -23,9 +23,9 @@ public class Client {
     @Getter @Setter
     String dietaryPreferences;
     @Getter @Setter
-    Integer weight;
+    Double weight;
     @Getter @Setter
-    Integer height;
+    Double height;
     @Getter @Setter
     Integer age;
 
