@@ -1,5 +1,5 @@
 import React, { useState } from "react";
-import {Slider, Grid, Paper, TextField, Typography, Link as MuiLink, Button, Stack, useTheme, useMediaQuery } from "@mui/material";
+import {Slider, Grid, Paper, TextField, Typography, Button, Stack} from "@mui/material";
 import SendIcon from '@mui/icons-material/Send';
 import LockOutlinedIcon from '@mui/icons-material/LockOutlined';
 import Avatar from '@mui/material/Avatar';
@@ -41,9 +41,10 @@ function Signup(){
       const[lastName,setLastname]=useState<string>('');
       const[isTrainer,setisTrainer]=useState(false);
 
-    const handleCheckboxChange = (event: React.ChangeEvent<HTMLInputElement>, checked: boolean) => {
-      setisTrainer(checked); // Directly use the `checked` boolean provided by MUI
-    };
+      const handleCheckboxChange = (checked: boolean) => {
+        setisTrainer(checked); // Directly use the `checked` boolean
+      };
+      
 
 
       type SignupFormState = {
@@ -58,7 +59,7 @@ function Signup(){
     
       const handleSignup = async(event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault() ;
-        const url = 'http://localhost:8081/accounts/signup';
+        const url = 'http://localhost:8081/accounts/singup';
         const data: SignupFormState = { username, password,firstName,lastName,isTrainer };
     
         try {
@@ -156,9 +157,16 @@ function Signup(){
           </Box>
 
           
-            <FormControlLabel control={
-            <Checkbox defaultChecked  checked={isTrainer} onChange={handleCheckboxChange}/>} 
-            label="Trainer" />
+          <FormControlLabel
+  control={
+    <Checkbox 
+      checked={isTrainer} 
+      onChange={(_, checked) => handleCheckboxChange(checked)}
+    />
+  } 
+  label="Trainer"
+/>
+
             <Box
                 sx={{
                     display: 'flex',
@@ -225,7 +233,7 @@ function Signup(){
               variant="contained"
               sx={{ py: 2, mt: 3, mb: 2 }}
               endIcon={<SendIcon />}
-              onSubmit={handleSignup}
+              onClick={handleSignup}
               
             >
               Sign Up

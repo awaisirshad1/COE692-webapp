@@ -34,6 +34,7 @@ function Login() {
           'Content-Type': 'application/json',
         },
         body: JSON.stringify(data),
+        
       });
 
       if (response.ok) {
@@ -47,6 +48,7 @@ function Login() {
         }
       } else {
         throw new Error('Failed to login');
+        console.log(JSON.stringify(data));
       }
     } catch (error) {
       console.error('Login Error:', error);
@@ -118,7 +120,7 @@ function Login() {
               variant="contained"
               sx={{ py: 2, mt: 3, mb: 2 }}
               endIcon={<SendIcon />}
-              onSubmit={handleLogin}
+              onClick={handleLogin}
             >
               Sign In
             </Button>
