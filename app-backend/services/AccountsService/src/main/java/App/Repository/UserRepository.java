@@ -11,7 +11,8 @@ public interface UserRepository extends CrudRepository<User,String> {
     @Query(value = "select exists(select username from User where username=:#{#username})", nativeQuery = true)
     public Long usernameExists(@Param("username") String username);
 
-    public User searchUserByUsername(String username);
+    @Query(value = "select * from User where username=:#{#username}", nativeQuery = true)
+    public User getUserByUsername(String username);
 
     @Query(value = "select password from User where username=:#{#username}", nativeQuery = true)
     public String loginCheck(@Param("username") String username);

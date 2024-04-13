@@ -9,6 +9,7 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
+import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -43,7 +44,8 @@ public class AccountsService {
 		log.info("accounts resource login post request received");
 		String username = payload.get("username");
 		String password = payload.get("password");
-		User user = userRepository.searchUserByUsername(username);
+		log.info("username: "+username +", password: "+password);
+		User user = userRepository.getUserByUsername(username);
 		log.info("user: "+user.toString());
 		String internal = userRepository.loginCheck(username);
 		String message;

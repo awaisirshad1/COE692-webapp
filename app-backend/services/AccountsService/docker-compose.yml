@@ -1,0 +1,44 @@
+services:
+  mysql:
+    container_name: accounts-service-db-container
+#    build:
+#      dockerfile: ../../../School/COE692/COE692_webapp/app-backend/temp/Dockerfile-accountsdb
+#    command: --default-authentication-plugin=caching_sha2_password
+    image: "mysql:8.0"
+    restart: always
+    environment:
+      MYSQL_DATABASE: coe692data_accounts
+      MYSQL_USER: awaislocal
+      MYSQL_PASSWORD: awaislocal
+      MYSQL_ROOT_PASSWORD: awaislocal
+    ports:
+      - "3306:3306"
+    volumes:
+#      - ./docker/data/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - ./docker/data/init.sql:/docker-entrypoint-initdb.d/init.sql
+#      - ./docker/data:/docker-entrypoint-initdb.d
+    networks:
+      - accounts-services-network
+
+  accounts-service:
+    container_name: accounts-service-api-container
+    build:
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - "8081:8081"
+#      - target: 8081
+#        published: 8081
+#        protocol: tcp
+#        mode: host
+    networks:
+      - accounts-services-network
+    environment:
+      - spring.datasource.url=jdbc:mysql://mysql:3306/coe692data_accounts
+    depends_on:
+      - mysql
+    volumes:
+      - .m2:/root/.m2
+
+networks:
+  accounts-services-network:
