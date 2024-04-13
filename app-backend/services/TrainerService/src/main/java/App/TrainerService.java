@@ -122,7 +122,7 @@ public class TrainerService {
 
 	@GetMapping("/get-client-list")
 	public ResponseEntity<Object> getTrainerClientList
-			(@PathParam(value = "trainerUsername") String trainerUsername)
+			(@RequestParam(value = "trainerUsername") String trainerUsername)
 	{
 		log.info("trainer service getClientList request received");
 		String responseMsg;
