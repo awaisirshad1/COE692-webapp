@@ -6,6 +6,7 @@ import App.Entity.TrainerClientList;
 import App.Handler.ResponseHandler;
 import App.Repository.ClientRecords;
 import App.Repository.TrainerRepository;
+import jakarta.websocket.server.PathParam;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.SpringApplication;
@@ -121,12 +122,12 @@ public class TrainerService {
 
 	@GetMapping("/get-client-list")
 	public ResponseEntity<Object> getTrainerClientList
-			(@RequestBody Map<String, String> payload)
+			(@PathParam(value = "trainerUsername") String trainerUsername)
 	{
 		log.info("trainer service getClientList request received");
 		String responseMsg;
 
-		Trainer trainer = trainerRepository.getTrainerByUsername(payload.get("trainerUsername"));
+		Trainer trainer = trainerRepository.getTrainerByUsername(trainerUsername);
 		if(trainer==null){
 			responseMsg = "trainer not found";
 			return ResponseHandler.generateResponse(responseMsg, HttpStatus.BAD_REQUEST, "");
