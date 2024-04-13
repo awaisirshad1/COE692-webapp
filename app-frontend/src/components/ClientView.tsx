@@ -20,15 +20,12 @@ import {
     
     Card,
     CardContent,
-    LinearProgress,
-    Grid,
     TableContainer,
     Table,
     TableHead,
     TableRow,
     TableCell,
     TableBody,
-    Paper,
     CircularProgress,
   } from '@mui/material';
 
@@ -98,27 +95,37 @@ const StyledInputBase = styled(InputBase)(({ theme }) => ({
   },
 }));
 
-const calculateMacros = (age, height, weight) => {
-    // Logic to calculate macronutrient intake
-    return {
-      protein: '150g',
-      carbs: '250g',
-      fats: '70g',
-      calories: 2500,
-    };
+const calculateMacros = (age: number, height: number, weight: number) => {
+  // Example logic using age, height, and weight to calculate macronutrient intake
+  const baseProtein = 0.8; // grams of protein per kg of body weight
+  const protein = baseProtein * weight; // adjust the multiplier as per dietary needs
+
+  const baseCalories = 25; // base calories per kg of body weight
+  const calories = baseCalories * weight; // adjust base calories as needed
+
+  // Use height and age to adjust carbs and fats, this is just a placeholder logic
+  const carbs = (height / 100) * 3; // just an example calculation
+  const fats = age > 30 ? 0.4 * weight : 0.3 * weight; // less fats for older athletes, for example
+
+  return {
+    protein: `${protein.toFixed(0)}g`,
+    carbs: `${carbs.toFixed(0)}g`,
+    fats: `${fats.toFixed(0)}g`,
+    calories: calories.toFixed(0),
   };
+};
 
+const athleteInfo = {
+  age: 25,
+  height: 180, // in cm
+  weight: 75, // in kg
+}
 
-    const athleteInfo = {
-      age: 25,
-      height: 180, // in cm
-      weight: 75, // in kg
-    }
+const macros = calculateMacros(athleteInfo.age, athleteInfo.height, athleteInfo.weight);
 
-    const macros = calculateMacros(athleteInfo.age, athleteInfo.height, athleteInfo.weight);
+// Fake progress value
+const progressValue = 60;
 
-  // Fake progress value
-  const progressValue = 60;
 
 
 export default function ClientView() {
@@ -313,7 +320,7 @@ export default function ClientView() {
         </StyledCard>
         
         {/* Macronutrients Table */}
-        <StyledTableContainer component={Paper}>
+        <StyledTableContainer>
           <Table>
             <TableHead>
               <TableRow>
