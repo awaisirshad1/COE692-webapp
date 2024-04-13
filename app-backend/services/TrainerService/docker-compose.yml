@@ -1,5 +1,5 @@
 services:
-  mysql:
+  mysql-trainer:
     container_name: trainer-service-db-container
     image: "mysql:8.0"
     restart: always
@@ -9,7 +9,7 @@ services:
       MYSQL_PASSWORD: awaislocal
       MYSQL_ROOT_PASSWORD: awaislocal
     ports:
-      - "3306:3306"
+      - "3307:3307"
     volumes:
       - ./docker/data/init.sql:/docker-entrypoint-initdb.d/init.sql
     networks:
@@ -25,9 +25,9 @@ services:
     networks:
       - trainer-services-network
     environment:
-      - spring.datasource.url=jdbc:mysql://mysql:3306/coe692data_trainer
+      - spring.datasource.url=jdbc:mysql://mysql:3307/coe692data_trainer
     depends_on:
-      - mysql
+      - mysql-trainer
     volumes:
       - .m2:/root/.m2
 

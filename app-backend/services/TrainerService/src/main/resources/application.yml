@@ -12,7 +12,7 @@ spring:
         dialect: org.hibernate.dialect.MySQLDialect
   datasource:
 # CONFIGURE THE BELOW FOR YOUR RESPECTIVE MYSQL DB < ----------
-    url: jdbc:mysql://mysql:3306/coe692data_trainers
+    url: jdbc:mysql://mysql:3307/coe692data_trainers
     username: awaislocal
     password: awaislocal
     driver-class-name: com.mysql.cj.jdbc.Driver
