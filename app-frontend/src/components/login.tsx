@@ -36,13 +36,7 @@ function Login() {
           "Access-Control-Allow-Origin":'*',
           "Content-Type":'application/json'
         },
-<<<<<<< HEAD
-        body: JSON.stringify(data),
-        
-      });
-=======
         data: JSON.stringify(loginFormData)
->>>>>>> 694bbe35e21bbf247d76735b83893cd70613e249
 
     });
 
@@ -57,7 +51,7 @@ function Login() {
         }
       } else {
         throw new Error('Failed to login');
-        console.log(JSON.stringify(data));
+        console.log(JSON.stringify(loginFormData));
       }
     } catch (error) {
       console.error('Login Error:', error);
