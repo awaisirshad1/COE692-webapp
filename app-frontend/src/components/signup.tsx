@@ -59,7 +59,7 @@ function Signup(){
     
       const handleSignup = async(event: React.MouseEvent<HTMLButtonElement>) => {
         event.preventDefault() ;
-        const url = 'http://localhost:8081/accounts/singup';
+        const url = 'http://accounts-service-api/accounts/signup';
         const data: SignupFormState = { username, password,firstName,lastName,isTrainer };
     
         try {

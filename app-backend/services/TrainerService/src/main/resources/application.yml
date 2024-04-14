@@ -4,7 +4,11 @@ spring:
   data:
     rest:
       cors:
-        allowed-origins: ${ALLOWED_CORS} # Or the specific origins you want to allow
+#        allowed-origins: ${ALLOWED_CORS} # Or the specific origins you want to allow
+        allowed-origins: # Or the specific origins you want to allow
+          - accounts-api: http://accounts-service-api
+          - frontend1: http://localhost:80
+          - frontend2: http://app-frontend
         allowed-methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
   jpa:
     hibernate:
@@ -16,7 +20,8 @@ spring:
   datasource:
     # Replace 'mysql' with the service name of your MySQL database in docker-compose.yml
     # Ensure the port matches the one exposed by your MySQL service
-    url: ${DB_URL}
+#    url: ${DB_URL}
+    url: jdbc:mysql://trainer-service-db:3307/coe692data_trainer
     username: awaislocal
     password: awaislocal
     driver-class-name: com.mysql.cj.jdbc.Driver

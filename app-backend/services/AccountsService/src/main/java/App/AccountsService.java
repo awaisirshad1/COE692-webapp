@@ -9,7 +9,6 @@ import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.boot.SpringApplication;
 import org.springframework.boot.autoconfigure.SpringBootApplication;
-import org.springframework.boot.autoconfigure.security.servlet.SecurityAutoConfiguration;
 import org.springframework.http.HttpStatus;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
@@ -23,7 +22,11 @@ import java.util.Map;
 
 @SpringBootApplication
 @RestController
-@CrossOrigin(origins = "${spring.data.rest.cors.allowed-origins}")
+@CrossOrigin(origins = {
+		"http://trainer-service-api",
+		"frontend1: http://localhost:80",
+		"frontend2: http://app-frontend"
+})
 @RequestMapping("/accounts")
 @Slf4j
 public class AccountsService {

@@ -22,7 +22,11 @@ import java.util.List;
 import java.util.Map;
 
 @SpringBootApplication
-@CrossOrigin(origins = "${spring.data.rest.cors.allowed-origins}")
+@CrossOrigin(origins = {
+		"http://accounts-service-api",
+		"frontend1: http://localhost:80",
+		"frontend2: http://app-frontend"
+})
 @RestController
 @RequestMapping("/trainer")
 @Slf4j

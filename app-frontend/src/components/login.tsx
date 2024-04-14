@@ -25,7 +25,7 @@ function Login() {
 
   const handleLogin = async(event: React.MouseEvent<HTMLButtonElement>) => {
     event.preventDefault() ;
-    const targetUrl = 'http://localhost:8081/accounts/login';
+    const targetUrl = 'http://accounts-service-api:8081/accounts/login';
     const loginFormData: LoginFormState = { username, password };
 
     try {
@@ -34,7 +34,7 @@ function Login() {
         url: targetUrl,
         headers:{
           "Access-Control-Allow-Origin":'*',
-          "Content-Type":'application/json'
+          // "Content-Type":'application/json'
         },
         data: JSON.stringify(loginFormData)
 

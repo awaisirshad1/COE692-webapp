@@ -3,8 +3,11 @@ services:
 #  <---------------------------------------- ACCOUNTS SECTION ---------------------------------------->
 #  accounts db
   mysql-accounts:
-    container_name: accounts-service-db-container
-    image: "mysql:8.0.28"
+    container_name: accounts-service-db
+#    build:
+#      context: /Users/awaisirshad/School/COE692/COE692_webapp/app-backend/services/AccountsService
+#      dockerfile: /db/Dockerfile
+    image: arm64v8/mysql:oracle
     restart: always
     environment:
       MYSQL_DATABASE: "coe692data_accounts"
@@ -14,21 +17,23 @@ services:
     ports:
       - 3306:3306
     volumes:
-      - /app-backend/services/AccountsService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - dbdata:/var/lib/mysql
-    networks:
-      - coe692project
+      - /Users/awaisirshad/School/COE692/COE692_webapp/app-backend/services/AccountsService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+#      - dbdata:/var/lib/mysql
+#    network_mode: host
+#    networks:
+#      - coe692project
 #  accounts backend microservice
   accounts-service:
-    container_name: accounts-service-api-container
+    container_name: accounts-service-api
     build:
       context: app-backend/services/AccountsService
       dockerfile: Dockerfile
     restart: always
     ports:
       - 8081:8081
-    networks:
-      - coe692project
+#    networks:
+#      - coe692project
+#    network_mode: host
     environment:
       DB_URL: "jdbc:mysql://accounts-service-db-container/coe692data_accounts"
       DB_USERNAME: "awaislocal"
@@ -43,8 +48,11 @@ services:
 #  <---------------------------------------- TRAINER SECTION ---------------------------------------->
 #  trainer db
   mysql-trainer:
-    container_name: trainer-service-db-container
-    image: "mysql:8.0.28"
+    container_name: trainer-service-db
+#    build:
+#      context: /Users/awaisirshad/School/COE692/COE692_webapp/app-backend/services/TrainerService
+#      dockerfile: /db/Dockerfile
+    image: arm64v8/mysql:oracle
     restart: always
     environment:
       MYSQL_DATABASE: "coe692data_trainer"
@@ -52,23 +60,25 @@ services:
       MYSQL_PASSWORD: "awaislocal"
       MYSQL_ROOT_PASSWORD: "awaislocal"
     ports:
-      - 3307:3307
+      - 3307:3306
     volumes:
-      - /app-backend/services/TrainerService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
-      - dbdata:/var/lib/mysql
-    networks:
-      - coe692project
+      - /Users/awaisirshad/School/COE692/COE692_webapp/app-backend/services/TrainerService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+#      - dbdata:/var/lib/mysql
+#    networks:
+#      - coe692project
+#    network_mode: host
 #  trainer backend microservice
   trainer-service:
-    container_name: trainer-service-api-container
+    container_name: trainer-service-api
     build:
       context: app-backend/services/TrainerService
       dockerfile: Dockerfile
     restart: always
     ports:
       - 8083:8083
-    networks:
-      - coe692project
+#    networks:
+#      - coe692project
+#    network_mode: host
     environment:
       DB_URL: "jdbc:mysql://trainer-service-db-container/coe692data_trainer"
       DB_USERNAME: "awaislocal"
@@ -83,6 +93,7 @@ services:
 #  <---------------------------------------- FRONTEND SECTION ---------------------------------------->
 # app frontend
   frontend:
+    container_name: app-frontend
     build:
       context: app-frontend
       dockerfile: Dockerfile
@@ -96,13 +107,13 @@ services:
     depends_on:
       - accounts-service
       - trainer-service
-    networks:
-      - coe692project
+#    network_mode: host
+#    networks:
+#      - coe692project
 
 #  <---------------------------------------- NETWORK CONFIGURATION ---------------------------------------->
 
 networks:
   coe692project:
-    driver: host
-volumes:
-  dbdata:
+#volumes:
+#  dbdata:
