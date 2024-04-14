@@ -3,9 +3,8 @@ spring:
     name: AccountsService
   data:
     rest:
-      base-path: /api
       cors:
-        allowed-origins: "http://localhost:3000" # Adjust the allowed origin as per your frontend host
+        allowed-origins: ${ALLOWED_CORS} # Adjust the allowed origin as per your frontend host
         allowed-methods: GET, POST, PUT, DELETE, PATCH, OPTIONS
   jpa:
     hibernate:
@@ -13,19 +12,17 @@ spring:
     properties:
       hibernate:
         dialect: org.hibernate.dialect.MySQLDialect
+    show-sql: true
   datasource:
     # Replace 'mysql' with the service name of your MySQL database in docker-compose.yml
-    url: jdbc:mysql://mysql:3306/coe692data_accounts
+#    url: jdbc:mysql://accounts-service-db-container/coe692data_accounts
+    url: ${DB_URL}
     username: awaislocal
     password: awaislocal
     driver-class-name: com.mysql.cj.jdbc.Driver
 server:
   port: 8081
-  # Uncomment the next line if you want the server to be accessible on all network interfaces
-  # address: 0.0.0.0
 
-# Uncomment the following line to enable SQL logging
-# spring.jpa.show-sql: true
 
 endpoints:
-  TrainerServiceBaseUri: http://localhost:8083/trainer
+  TrainerServiceBaseUri: ${EXTERNALENDPOINTURI}

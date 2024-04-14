@@ -1,0 +1,108 @@
+services:
+
+#  <---------------------------------------- ACCOUNTS SECTION ---------------------------------------->
+#  accounts db
+  mysql-accounts:
+    container_name: accounts-service-db-container
+    image: "mysql:8.0.28"
+    restart: always
+    environment:
+      MYSQL_DATABASE: "coe692data_accounts"
+      MYSQL_USER: "awaislocal"
+      MYSQL_PASSWORD: "awaislocal"
+      MYSQL_ROOT_PASSWORD: "awaislocal"
+    ports:
+      - 3306:3306
+    volumes:
+      - /app-backend/services/AccountsService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dbdata:/var/lib/mysql
+    networks:
+      - coe692project
+#  accounts backend microservice
+  accounts-service:
+    container_name: accounts-service-api-container
+    build:
+      context: app-backend/services/AccountsService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8081:8081
+    networks:
+      - coe692project
+    environment:
+      DB_URL: "jdbc:mysql://accounts-service-db-container/coe692data_accounts"
+      DB_USERNAME: "awaislocal"
+      DB_PASSWORD: "awaislocal"
+      EXTERNALENDPOINTURI: "http://trainer-service:8083/trainer"
+      ALLOWED_CORS: "http://trainer-service:8083"
+    depends_on:
+      - mysql-accounts
+    volumes:
+      - .m2:/root/.m2
+
+#  <---------------------------------------- TRAINER SECTION ---------------------------------------->
+#  trainer db
+  mysql-trainer:
+    container_name: trainer-service-db-container
+    image: "mysql:8.0.28"
+    restart: always
+    environment:
+      MYSQL_DATABASE: "coe692data_trainer"
+      MYSQL_USER: "awaislocal"
+      MYSQL_PASSWORD: "awaislocal"
+      MYSQL_ROOT_PASSWORD: "awaislocal"
+    ports:
+      - 3307:3307
+    volumes:
+      - /app-backend/services/TrainerService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
+      - dbdata:/var/lib/mysql
+    networks:
+      - coe692project
+#  trainer backend microservice
+  trainer-service:
+    container_name: trainer-service-api-container
+    build:
+      context: app-backend/services/TrainerService
+      dockerfile: Dockerfile
+    restart: always
+    ports:
+      - 8083:8083
+    networks:
+      - coe692project
+    environment:
+      DB_URL: "jdbc:mysql://trainer-service-db-container/coe692data_trainer"
+      DB_USERNAME: "awaislocal"
+      DB_PASSWORD: "awaislocal"
+      EXTERNALENDPOINTURI: "http://accounts-service:8081/accounts"
+      ALLOWED_CORS: "http://accounts-service:8081"
+    depends_on:
+      - mysql-trainer
+    volumes:
+      - .m2:/root/.m2
+
+#  <---------------------------------------- FRONTEND SECTION ---------------------------------------->
+# app frontend
+  frontend:
+    build:
+      context: app-frontend
+      dockerfile: Dockerfile
+    volumes:
+      - .:/app
+      - /app/node_modules
+    ports:
+      - 3000:80
+    environment:
+      NODE_ENV: "development"
+    depends_on:
+      - accounts-service
+      - trainer-service
+    networks:
+      - coe692project
+
+#  <---------------------------------------- NETWORK CONFIGURATION ---------------------------------------->
+
+networks:
+  coe692project:
+    driver: host
+volumes:
+  dbdata:

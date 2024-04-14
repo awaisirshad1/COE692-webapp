@@ -23,7 +23,7 @@ import java.util.Map;
 
 @SpringBootApplication
 @RestController
-@CrossOrigin(origins = "http://localhost:3000")
+@CrossOrigin(origins = "${spring.data.rest.cors.allowed-origins}")
 @RequestMapping("/accounts")
 @Slf4j
 public class AccountsService {
