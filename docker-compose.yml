@@ -20,8 +20,8 @@ services:
       - /Users/awaisirshad/School/COE692/COE692_webapp/app-backend/services/AccountsService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 #      - dbdata:/var/lib/mysql
 #    network_mode: host
-#    networks:
-#      - coe692project
+    networks:
+      - coe692project
 #  accounts backend microservice
   accounts-service:
     container_name: accounts-service-api
@@ -31,8 +31,8 @@ services:
     restart: always
     ports:
       - 8081:8081
-#    networks:
-#      - coe692project
+    networks:
+      - coe692project
 #    network_mode: host
     environment:
       DB_URL: "jdbc:mysql://accounts-service-db-container/coe692data_accounts"
@@ -64,8 +64,8 @@ services:
     volumes:
       - /Users/awaisirshad/School/COE692/COE692_webapp/app-backend/services/TrainerService/db/scripts/init.sql:/docker-entrypoint-initdb.d/init.sql
 #      - dbdata:/var/lib/mysql
-#    networks:
-#      - coe692project
+    networks:
+      - coe692project
 #    network_mode: host
 #  trainer backend microservice
   trainer-service:
@@ -76,8 +76,8 @@ services:
     restart: always
     ports:
       - 8083:8083
-#    networks:
-#      - coe692project
+    networks:
+      - coe692project
 #    network_mode: host
     environment:
       DB_URL: "jdbc:mysql://trainer-service-db-container/coe692data_trainer"
@@ -108,12 +108,13 @@ services:
       - accounts-service
       - trainer-service
 #    network_mode: host
-#    networks:
-#      - coe692project
+    networks:
+      - coe692project
 
 #  <---------------------------------------- NETWORK CONFIGURATION ---------------------------------------->
 
 networks:
   coe692project:
+    driver: bridge
 #volumes:
 #  dbdata:

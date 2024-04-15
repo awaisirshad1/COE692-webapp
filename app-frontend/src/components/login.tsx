@@ -34,11 +34,11 @@ function Login() {
         url: targetUrl,
         headers:{
           "Access-Control-Allow-Origin":'*',
-          // "Content-Type":'application/json'
+          "Content-Type":'application/json'
         },
         data: JSON.stringify(loginFormData)
 
-    });
+      });
 
       if ((await response).status == HttpStatusCode.Ok) {
         const result = (await response).data;
